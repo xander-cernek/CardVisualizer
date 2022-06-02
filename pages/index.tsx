@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import React, {useEffect, useState} from "react";
 
 const Home: NextPage = () => {
   return (
@@ -13,44 +14,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <LoadCards></LoadCards>
       </main>
 
       <footer className={styles.footer}>
@@ -67,6 +31,38 @@ const Home: NextPage = () => {
       </footer>
     </div>
   )
+}
+
+const LoadCards = () => {
+  const [cards, setCards] = useState([]);
+
+  let jsonData = { "identifiers": [{ "name": "Goldspan Dragon" },
+  { "name": "Yawgmoth's Will" },
+  { "name": "Underworld Breach" },
+  { "name": "Brainstorm" },
+  { "name": "Harrow" },
+  { "name": "Kinsbaile Cavalier" }] };
+
+  useEffect(() => {
+      fetch('https://api.scryfall.com/cards/collection/', {  // Enter your IP address here
+
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(jsonData) // body data type must match "Content-Type" header
+
+  })
+  .then(response => response.json().then(data => {
+      setCards(data['data'])
+  }))
+  .catch((error) => {
+  console.error('Error:', error);
+  });
+  }, []);
+  return <ul>{cards.map((card, i) => <li key={i}><img src={card['image_uris']['small']} alt={card['name']}></img></li>)}</ul>
 }
 
 export default Home
